@@ -118,6 +118,17 @@ deb_handler() {
 	fi
 }
 
+urlencode() {
+	local s="$1" i c
+	for ((i=0; i<${#s}; i++)); do
+		c=${s:i:1}
+		case "$c" in
+			[a-zA-Z0-9.~_-]) printf '%s' "$c" ;;
+			*) printf '%%%02X' "'$c" ;;
+		esac
+	done
+}
+
 fnt_install() {
 	local a o p
 	a='' o='' p=''
@@ -151,7 +162,7 @@ fnt_install() {
 		files="$(awk '/^ .*\.?tf$/ {print $2}' <<< "$a")"
 		md5sums="$(awk '/^ .*\.?tf$/ {gsub(/^ /,""); print}' <<< "$a")"
 		for file in $files; do
-			download "${url}/${file}" "${TARGET}/${file}"
+			download "${url}/$(urlencode $file)" "${TARGET}/${file}"
 			echo "Package: $FNTMATCH File: $file"
 		done
 		echo "$md5sums" > "${FNTINDEXDIR}/google-${dir}"
@@ -164,7 +175,7 @@ fnt_install() {
 			files="$(awk '/^ .*\.?tf$/ {print $2}' <<< "$o")"
 			md5sums="$(awk '/^ .*\.?tf$/ {gsub(/^ /,""); print}' <<< "$o")"
 			for file in $files; do
-				download "${url}/${file}" "${TARGET}/${file}"
+				download "${url}/$(urlencode $file)" "${TARGET}/${file}"
 				echo "Package: $FNTMATCH File: $file"
 			done
 			echo "$md5sums" > "${FNTINDEXDIR}/google-${dir}"
